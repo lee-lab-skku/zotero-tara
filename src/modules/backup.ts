@@ -16,11 +16,15 @@ import { version } from "../../package.json";
 const { AddonManager } = ChromeUtils.import(
   "resource://gre/modules/AddonManager.jsm",
 );
+const { Downloads } = ChromeUtils.import(
+  "resource://gre/modules/Downloads.jsm",
+);
 
 interface AddonInfo {
   id: string;
   userDisabled: boolean;
   version: string;
+  spec: string;
 }
 
 // TODO: Add user customed preferences
@@ -119,6 +123,7 @@ export async function getAddonInfos() {
       id: addon.id,
       userDisabled: addon.userDisabled,
       version: addon.version,
+      spec: addon.sourceURI.spec
     });
   }
 
@@ -214,10 +219,10 @@ export async function createBackupFile(isExport = false) {
           await IOUtils.writeJSON(pf, backupInfos);
           break;
         }
-        case "keepAddons":
-          s = PathUtils.join(profileDir, "extensions");
-          await IOUtils.copy(s, outDir, { recursive: true });
-          break;
+        // case "keepAddons":
+        //   s = PathUtils.join(profileDir, "extensions");
+        //   await IOUtils.copy(s, outDir, { recursive: true });
+        //   break;
         case "keepStyles":
         case "keepTranslators":
         case "keepLocate":
@@ -407,6 +412,8 @@ export async function restoreFromFile(filename: string) {
             const addonFile =
               PathUtils.join(PathUtils.join(tmpDir, "extensions"), addon.id) +
               ".xpi";
+            const download = await Downloads.createDownload({ source: { url: addon.spec }, target: { path: addonFile } });
+            await download.start();
             const isExist = await IOUtils.exists(addonFile);
             ztoolkit.log(addonFile);
             ztoolkit.log(isExist);
