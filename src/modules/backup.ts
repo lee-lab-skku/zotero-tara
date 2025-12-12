@@ -16,6 +16,7 @@ import { version } from "../../package.json";
 const { AddonManager } = ChromeUtils.import(
   "resource://gre/modules/AddonManager.jsm",
 );
+// @ts-ignore
 const { Downloads } = ChromeUtils.import(
   "resource://gre/modules/Downloads.jsm",
 );
