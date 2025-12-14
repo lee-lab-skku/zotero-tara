@@ -1,0 +1,33 @@
+[
+  {
+    "branch": "extensions.zotero",
+    "keysMode": "black",
+    "keys": [
+      "dataDir",
+      "firstRun.skipFirefoxProfileAccessCheck",
+      "firstRun2",
+      "lastWebDAVOrphanPurge",
+      "prefVersion",
+      "scaffold.translatorsDir",
+      "sync.reminder.setUp.enabled",
+      "sync.reminder.setUp.lastDisplayed",
+      "sync.storage.verified",
+      "recentSaveTargets",
+      "lastViewedFolder",
+      "scaffold.translatorsDir",
+      "scaffold.eslint.enabled",
+      "tara.itemID",
+      "tara.exportDir",
+      "thirdPartyCache",
+      "zotero.asyncTemp"
+    ]
+  },
+  {
+    "branch": "extensions.zoteroWinWordIntegration",
+    "keysMode": "black",
+    "keys": [
+      "installed",
+      "version"
+    ]
+  }
+]

@@ -28,29 +28,6 @@ interface AddonInfo {
   spec: string;
 }
 
-// TODO: Add user customed preferences
-const DropPrefs: Array<string> = [
-  "extensions.zotero.dataDir",
-  "extensions.zotero.firstRun.skipFirefoxProfileAccessCheck",
-  "extensions.zotero.firstRun2",
-  "extensions.zotero.lastWebDAVOrphanPurge",
-  "extensions.zotero.prefVersion",
-  "extensions.zotero.scaffold.translatorsDir",
-  "extensions.zotero.sync.reminder.setUp.enabled",
-  "extensions.zotero.sync.reminder.setUp.lastDisplayed",
-  "extensions.zotero.sync.storage.verified",
-  "extensions.zotero.recentSaveTargets",
-  "extensions.zotero.lastViewedFolder", // Last viewd collection
-  "extensions.zotero.scaffold.translatorsDir",
-  "extensions.zotero.scaffold.eslint.enabled",
-  "extensions.zotero.tara.itemID",
-  "extensions.zotero.tara.exportDir",
-  "extensions.zotero.thirdPartyCache",
-  "extensions.zotero.zotero.asyncTemp",
-  "extensions.zoteroWinWordIntegration.installed",
-  "extensions.zoteroWinWordIntegration.version",
-];
-
 export function getQueue() {
   const qPrefs = [
     "keepPrefs",
@@ -94,16 +71,33 @@ export async function readPrefsFromFile() {
   return await Zotero.Profile.readPrefsFromFile(prefsFile);
 }
 
+function isValidPref(pref: string, pol: any): boolean {
+  const matchedPolicy = pol.find((policy: any) =>
+    pref.startsWith(policy.branch + ".")
+  );
+  if (!matchedPolicy)
+    return false;
+
+  const remainingKey = pref.slice(matchedPolicy.branch.length + 1);
+  const keyInList = matchedPolicy.keys.includes(remainingKey);
+
+  if (matchedPolicy.keysMode === "white")
+    return keyInList;
+  else if (matchedPolicy.keysMode === "black")
+    return !keyInList;
+
+  return false; // no defined behavior yet
+}
+
 // Only user modified prefs will be kept
-function getPrefInfos(filter = false) {
+function getPrefInfos() {
   const rootBranch = ztoolkit.getGlobal("Zotero").Prefs
     .rootBranch as rootBranch;
+  const policies = require("./PrefPolicies.json");
   let prefsKey: string[] = rootBranch
     .getChildList("extensions.")
-    .filter((p: string) => rootBranch.prefHasUserValue(p));
-  if (filter) {
-    prefsKey = prefsKey.filter((p) => !DropPrefs.includes(p));
-  }
+    .filter((p: string) => rootBranch.prefHasUserValue(p))
+    .filter(isValidPref, policies);
   return prefsKey.reduce((a: any, c: string) => {
     a[c] = Zotero.Prefs.get(c, true);
     return a;
@@ -159,7 +153,7 @@ export async function getBackupInfos() {
     info.addons = addonInfos;
   }
   if (getPref("keepPrefs")) {
-    const prefsInfos = getPrefInfos(true);
+    const prefsInfos = getPrefInfos();
     info.meta.prefNum = Object.keys(prefsInfos).length;
     info.preferences = prefsInfos;
   }
