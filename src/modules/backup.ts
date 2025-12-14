@@ -25,7 +25,7 @@ interface AddonInfo {
   id: string;
   userDisabled: boolean;
   version: string;
-  updateURL: string;
+  spec: string;
 }
 
 export function getQueue() {
@@ -121,11 +121,13 @@ export async function getAddonInfos() {
   for (const addon of await AddonManager.getAllAddons()) {
     // Weird plugin has undefined addon id
     if (wordPluginIDs.includes(addon.id) && !addon.id) continue;
+    const update = await fetch(addon.updateURL).then((res) => res.json());
     addoninfos.push({
       id: addon.id,
       userDisabled: addon.userDisabled,
       version: addon.version,
-      updateURL: addon.updateURL,
+      // @ts-ignore
+      spec: update.addons[addon.id].updates[0].update_link,
     });
   }
 
@@ -411,7 +413,7 @@ export async function restoreFromFile(filename: string) {
 
             if (addon.id == "tara@linxzh.com" || !addon.id) continue;
             const installedResult =
-              await AddonManager.getInstallForURL(addon.updateURL);
+              await AddonManager.getInstallForURL(addon.spec);
             await installedResult.install();
           }
           break;
