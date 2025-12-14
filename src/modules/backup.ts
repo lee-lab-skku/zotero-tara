@@ -25,7 +25,7 @@ interface AddonInfo {
   id: string;
   userDisabled: boolean;
   version: string;
-  spec: string;
+  updateURL: string;
 }
 
 export function getQueue() {
@@ -124,7 +124,7 @@ export async function getAddonInfos() {
       id: addon.id,
       userDisabled: addon.userDisabled,
       version: addon.version,
-      spec: addon.sourceURI.spec
+      updateURL: addon.updateURL,
     });
   }
 
@@ -409,39 +409,9 @@ export async function restoreFromFile(filename: string) {
             ztoolkit.log(`install addon ${addon.id} ${addon.userDisabled}`);
 
             if (addon.id == "tara@linxzh.com" || !addon.id) continue;
-
-            const addonFile =
-              PathUtils.join(PathUtils.join(tmpDir, "extensions"), addon.id) +
-              ".xpi";
-            const download = await Downloads.createDownload({ source: { url: addon.spec }, target: { path: addonFile } });
-            await download.start();
-            const isExist = await IOUtils.exists(addonFile);
-            ztoolkit.log(addonFile);
-            ztoolkit.log(isExist);
-            if (isExist) {
-              const xpiFile = Zotero.File.pathToFile(addonFile);
               const installedResult =
-                await AddonManager.getInstallForFile(xpiFile);
-              if (
-                !installedResult.addon ||
-                installedResult.isCompatible ||
-                installedResult.isPlatformCompatible
-              ) {
-                ztoolkit.log("plugin install failed or incompatible");
-              } else {
+              await AddonManager.getInstallForURL(addon.updateURL);
                 await installedResult.install();
-                const installedAddon = await AddonManager.getAddonByID(
-                  addon.id,
-                );
-                if (addon.userDisabled) {
-                  await installedAddon.disable();
-                } else {
-                  await installedAddon.enable();
-                }
-              }
-            } else {
-              ztoolkit.log(`**missing addon ${addon.id}`);
-            }
           }
           break;
         case "keepStyles":
