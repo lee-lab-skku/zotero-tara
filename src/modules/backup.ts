@@ -72,11 +72,17 @@ export async function readPrefsFromFile() {
 }
 
 function isValidPref(pref: string, pol: any): boolean {
-  const matchedPolicy = pol.find((policy: any) =>
+  const matchingPolicies = pol.filter((policy: any) =>
     pref.startsWith(policy.branch + ".")
   );
-  if (!matchedPolicy)
+
+  if (matchingPolicies.length === 0)
     return false;
+
+  // Follow the most specific policy
+  const matchedPolicy = matchingPolicies.sort((a: any, b: any) =>
+    b.branch.length - a.branch.length
+  )[0];
 
   const remainingKey = pref.slice(matchedPolicy.branch.length + 1);
   const keyInList = matchedPolicy.keys.includes(remainingKey);
