@@ -491,9 +491,9 @@ export async function restoreFromFile(filename: string) {
           ztoolkit.log("restore preferences");
           backupPrefs = await IOUtils.readJSON(backupPrefsPath);
           backupZoteroVersion = backupPrefs.ZoteroVersion || "6.xxxx";
+          const policy = require("./PrefPolicies.json");
           for (const pkey in backupPrefs.preferences) {
-            // 过程个性化的目录设置，避免异常的设置值
-            if (DropPrefs.includes(pkey)) continue;
+            if (isValidPref(pkey, policy)) continue;
 
             if (
               retest.test(pkey) &&
