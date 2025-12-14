@@ -71,8 +71,9 @@ export async function readPrefsFromFile() {
   return await Zotero.Profile.readPrefsFromFile(prefsFile);
 }
 
-function isValidPref(pref: string, pol: any): boolean {
-  const matchingPolicies = pol.filter((policy: any) =>
+function isValidPref(this: any, pref: string): boolean {
+  ztoolkit.log(`checking pref ${pref}`);
+  const matchingPolicies = this.filter((policy: any) =>
     pref.startsWith(policy.branch + ".")
   );
 
@@ -409,9 +410,9 @@ export async function restoreFromFile(filename: string) {
             ztoolkit.log(`install addon ${addon.id} ${addon.userDisabled}`);
 
             if (addon.id == "tara@linxzh.com" || !addon.id) continue;
-              const installedResult =
+            const installedResult =
               await AddonManager.getInstallForURL(addon.updateURL);
-                await installedResult.install();
+            await installedResult.install();
           }
           break;
         case "keepStyles":
@@ -463,7 +464,7 @@ export async function restoreFromFile(filename: string) {
           backupZoteroVersion = backupPrefs.ZoteroVersion || "6.xxxx";
           const policy = require("./PrefPolicies.json");
           for (const pkey in backupPrefs.preferences) {
-            if (isValidPref(pkey, policy)) continue;
+            if (isValidPref.call(policy, pkey)) continue;
 
             if (
               retest.test(pkey) &&
