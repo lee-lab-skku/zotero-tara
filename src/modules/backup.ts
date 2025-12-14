@@ -220,7 +220,7 @@ export async function createBackupFile(isExport = false) {
           await IOUtils.writeJSON(pf, backupInfos);
           break;
         }
-        // case "keepAddons":
+        case "keepAddons":
         //   s = PathUtils.join(profileDir, "extensions");
         //   await IOUtils.copy(s, outDir, { recursive: true });
         //   break;
@@ -254,16 +254,16 @@ export async function createBackupFile(isExport = false) {
           await IOUtils.remove(
             PathUtils.join(getPref("exportDir") as string, "tara.xpi"),
           );
-          if (
-            await IOUtils.exists(
-              pathjoin(profileDir, ["extensions", "tara@linxzh.com.xpi"]),
-            )
-          ) {
-            await IOUtils.copy(
-              pathjoin(profileDir, ["extensions", "tara@linxzh.com.xpi"]),
-              PathUtils.join(getPref("exportDir") as string, "tara.xpi"),
-            );
-          }
+          // if (
+          //   await IOUtils.exists(
+          //     pathjoin(profileDir, ["extensions", "tara@linxzh.com.xpi"]),
+          //   )
+          // ) {
+          //   await IOUtils.copy(
+          //     pathjoin(profileDir, ["extensions", "tara@linxzh.com.xpi"]),
+          //     PathUtils.join(getPref("exportDir") as string, "tara.xpi"),
+          //   );
+          // }
           break;
       }
       ztoolkit.log("complete task " + task);
