@@ -29,14 +29,7 @@ export function getQueue() {
     "keepTranslators",
     "keepLocate",
   ];
-
-  const queue: Array<string> = [];
-  qPrefs.forEach((i) => {
-    if (getPref(i)) {
-      queue.push(i);
-    }
-  });
-  return queue;
+  return qPrefs;
 }
 
 export async function createBackupItem(): Promise<void | boolean> {
