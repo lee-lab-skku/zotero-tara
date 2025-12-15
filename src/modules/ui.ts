@@ -2,8 +2,8 @@ import { config } from "../../package.json";
 import { getString } from "../utils/locale";
 import {
   createBackupAsAttachment,
-  exportBackup,
-  importFromBackup,
+  // exportBackup,
+  // importFromBackup,
   restoreFromBackup,
 } from "./backup";
 
