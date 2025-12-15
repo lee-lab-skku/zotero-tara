@@ -4,7 +4,6 @@ import { getPref, setPref } from "../utils/prefs";
 import {
   copyDirectory,
   findBackupItem,
-  pathjoin,
   removeDirectory,
   unzipToTemporaryDir,
   zipDirectory,
@@ -16,15 +15,9 @@ import { version } from "../../package.json";
 const { AddonManager } = ChromeUtils.import(
   "resource://gre/modules/AddonManager.jsm",
 );
-// @ts-ignore
-const { Downloads } = ChromeUtils.import(
-  "resource://gre/modules/Downloads.jsm",
-);
 
 interface AddonInfo {
   id: string;
-  userDisabled: boolean;
-  version: string;
   spec: string;
 }
 
@@ -112,20 +105,13 @@ function getPrefInfos() {
 }
 
 export async function getAddonInfos() {
-  const wordPluginIDs = [
-    "ZoteroOpenOfficeIntegration@Zotero.org",
-    "ZoteroWinWordIntegration@Zotero.org",
-    "tara@linxzh.com",
-  ];
   const addoninfos: Array<AddonInfo> = [];
   for (const addon of await AddonManager.getAllAddons()) {
     // Weird plugin has undefined addon id
-    if (wordPluginIDs.includes(addon.id) && !addon.id) continue;
+    if (!addon.id || addon.id == "tara@linxzh.com" || addon.userDisabled) continue;
     const update = await fetch(addon.updateURL).then((res) => res.json());
     addoninfos.push({
       id: addon.id,
-      userDisabled: addon.userDisabled,
-      version: addon.version,
       // @ts-ignore
       spec: update.addons[addon.id].updates[0].update_link,
     });
@@ -224,9 +210,6 @@ export async function createBackupFile(isExport = false) {
           break;
         }
         case "keepAddons":
-        //   s = PathUtils.join(profileDir, "extensions");
-        //   await IOUtils.copy(s, outDir, { recursive: true });
-        //   break;
         case "keepStyles":
         case "keepTranslators":
         case "keepLocate":
@@ -253,21 +236,6 @@ export async function createBackupFile(isExport = false) {
           await Zotero.Attachments.importFromFile(importOptions);
           break;
         }
-        case "keepTaraXPI":
-          await IOUtils.remove(
-            PathUtils.join(getPref("exportDir") as string, "tara.xpi"),
-          );
-          // if (
-          //   await IOUtils.exists(
-          //     pathjoin(profileDir, ["extensions", "tara@linxzh.com.xpi"]),
-          //   )
-          // ) {
-          //   await IOUtils.copy(
-          //     pathjoin(profileDir, ["extensions", "tara@linxzh.com.xpi"]),
-          //     PathUtils.join(getPref("exportDir") as string, "tara.xpi"),
-          //   );
-          // }
-          break;
       }
       ztoolkit.log("complete task " + task);
 
@@ -316,7 +284,7 @@ export async function createBackupAsAttachment() {
 
 export async function exportBackup() {
   ztoolkit.log("** Tara start export backup");
-  addon.data.progress.queue = getQueue().concat(["createZIP", "keepTaraXPI"]);
+  addon.data.progress.queue = getQueue().concat(["createZIP"]);
   addon.data.progress.totalTasks = addon.data.progress.queue.length;
   await createBackupFile(true);
   ztoolkit.log("** Tara finish export backup");
@@ -409,12 +377,9 @@ export async function restoreFromFile(filename: string) {
           ztoolkit.log("restore addons");
           backupPrefs = await IOUtils.readJSON(backupPrefsPath);
           for (const addon of backupPrefs.addons) {
-            ztoolkit.log(`install addon ${addon.id} ${addon.userDisabled}`);
-
-            if (addon.id == "tara@linxzh.com" || !addon.id) continue;
-            const installedResult =
-              await AddonManager.getInstallForURL(addon.spec);
-            await installedResult.install();
+            ztoolkit.log(`install addon ${addon.id}`);
+            const install = await AddonManager.getInstallForURL(addon.spec);
+            await install.install();
           }
           break;
         case "keepStyles":
