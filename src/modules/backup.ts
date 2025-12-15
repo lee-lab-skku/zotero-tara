@@ -39,7 +39,9 @@ export function getQueue() {
   return queue;
 }
 
-export async function createBackupItem() {
+export async function createBackupItem(): Promise<void | boolean> {
+  if (Zotero.Users.getCurrentUserID() !== getPref("adminID"))
+    return false;
   const oldItemID = await findBackupItem();
   if (oldItemID && Zotero.Items.get(oldItemID as number))
     await Zotero.Items.erase(oldItemID as number);
@@ -180,7 +182,8 @@ export async function createBackupFile(isExport = false) {
     cacheTmp.remove(false);
   }
   // Create backup item
-  await createBackupItem();
+  const result = await createBackupItem();
+  if (result === false) return;
   const outDir = PathUtils.join(tmpDir, "Backup");
   await IOUtils.makeDirectory(outDir);
   const dataDir: string = Zotero.Prefs.get("dataDir") as string;
