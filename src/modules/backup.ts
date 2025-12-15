@@ -164,113 +164,38 @@ export async function createBackupAsAttachment() {
 
 export async function restoreFromBackup() {
   const backupItemID = await findBackupItem();
-  const attachmentID = Zotero.Items.get(backupItemID as number).getAttachments()[0];
-  const attachment = Zotero.Items.get(attachmentID as number);
-  const filename = attachment.getFilePath() as string;
-  const cacheTmp = Zotero.getTempDirectory();
-  cacheTmp.append("Backup");
-  if (cacheTmp.exists()) {
-    removeDirectory(cacheTmp.path);
-  }
-  const tmpDir = cacheTmp.path;
+  const attachmentIDs = Zotero.Items.get(backupItemID as number).getAttachments();
   const dataDir = Zotero.Prefs.get("dataDir") as string;
-  await addon.data.progress.openProgressWindow({
-    header: getString("restore-header"),
-  });
-  const backupPrefsPath = PathUtils.join(tmpDir, "backup.json");
-  let backupPrefs: any;
-  let success = true;
-  const retest = new RegExp("dir|path|folder", "i");
-  let s: any, t: any;
-  try {
-    ztoolkit.log("restore unzip");
-    await unzipToTemporaryDir(filename, tmpDir);
-    ztoolkit.log("restore addons");
-    backupPrefs = await IOUtils.readJSON(backupPrefsPath);
-    for (const addon of backupPrefs.addons) {
-      ztoolkit.log(`install addon ${addon.id}`);
-      const install = await AddonManager.getInstallForURL(addon.spec);
-      await install.install();
-    }
-    for (const task of ["styles", "translators"]) {
-      ztoolkit.log(`restore ${task}`);
-      s = PathUtils.join(tmpDir, task);
-      t = PathUtils.join(dataDir, task);
-      if (await IOUtils.exists(s)) {
-        ztoolkit.log(s + " " + t);
-        await copyDirectory(s, t);
-      }
-    }
-    ztoolkit.log("restore locate");
-    s = PathUtils.join(tmpDir, "locate");
-    t = PathUtils.join(dataDir, "locate");
-    if (await IOUtils.exists(s)) {
-      await Zotero.File.iterateDirectory(s, async function (entry: any) {
-        if (entry.name === "engines.json") {
-          const enginesBackup = await IOUtils.readJSON(
-            PathUtils.join(s, entry.name),
-          );
-          const engines = await IOUtils.readJSON(
-            PathUtils.join(t, entry.name),
-          );
-          const engineNames = engines.map((e: any) => e._name);
-          enginesBackup.forEach((e: any) => {
-            if (!engineNames.includes(e._name)) {
-              engines.push(e);
-            }
-          });
-          await IOUtils.writeJSON(PathUtils.join(t, entry.name), engines);
-        } else {
-          await IOUtils.copy(
-            PathUtils.join(s, entry.name),
-            PathUtils.join(t, entry.name),
-          );
-        }
-      });
-    } else {
-      ztoolkit.log("missing source locate folder");
-    }
-    ztoolkit.log("restore preferences");
-    backupPrefs = await IOUtils.readJSON(backupPrefsPath);
-    const policy = require("./PrefPolicies.json");
-    for (const pkey in backupPrefs.preferences) {
-      if (isValidPref.call(policy, pkey)) continue;
 
-      if (
-        retest.test(pkey) &&
-        typeof backupPrefs.preferences[pkey] == "string"
-      ) {
-        ztoolkit.log(pkey);
-        ztoolkit.log(backupPrefs.preferences[pkey]);
-        let isExists = false;
-        try {
-          isExists = await IOUtils.exists(backupPrefs.preferences[pkey]);
-        } catch (e) {
-          ztoolkit.log(
-            `Is not a path ${pkey}:${backupPrefs.preferences[pkey]}`,
-          );
-        }
-        if (!isExists) continue;
-      }
-      if (backupPrefs.preferences[pkey]) {
+  // Process each attachment file directly
+  for (const attachmentID of attachmentIDs) {
+    const attachment = Zotero.Items.get(attachmentID as number);
+    const filename = attachment.getFilePath() as string;
+    const basename = PathUtils.filename(filename);
+
+    // Handle specific file types
+    if (basename === "preferences.json") {
+      const prefsData = await IOUtils.readJSON(filename);
+      for (const pkey in prefsData) {
+        // if (isValidPref.call(require("./PrefPolicies.json"), pkey)) continue;
         Zotero.Prefs.set(
           pkey,
-          backupPrefs.preferences[pkey],
+          prefsData[pkey],
           true, // All preferences are set in global.
         );
       }
+    } else if (basename === "addons.json") {
+      const addonsData = await IOUtils.readJSON(filename);
+      for (const addon of addonsData) {
+        const install = await AddonManager.getInstallForURL(addon.spec);
+        await install.install();
+      }
+    } else if (basename.endsWith(".csl")) {
+      const t = PathUtils.join(dataDir, "styles", basename);
+      await IOUtils.copy(filename, t);
+    } else if (basename.endsWith(".js")) {
+      const t = PathUtils.join(dataDir, "translators", basename);
+      await IOUtils.copy(filename, t);
     }
-  } catch (e) {
-    ztoolkit.log(e);
-    success = false;
-    addon.data.progress.queue = [];
   }
-  let caution = "";
-  addon.data.progress.completeProgressWindow(
-    success,
-    success ? getString("restore-success") : getString("restore-fail"),
-    success
-      ? getString("restore-success-msg") + "<br />" + caution
-      : getString("restore-fail-msg"),
-  );
 }
