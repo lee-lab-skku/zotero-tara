@@ -40,18 +40,14 @@ export function getQueue() {
 }
 
 export async function createBackupItem() {
-  const itemID = await findBackupItem();
-  if (itemID && Zotero.Items.get(itemID as number)) {
-    ztoolkit.log("备份条目已存在，不必创建新条目");
-    return;
-  } else {
-    // Create Docuement Item for store backup zip file.
-    const item = new Zotero.Item("document");
-    item.setField("title", "Tara_Backup");
-    const itemID = (await item.saveTx()) as number;
-    setPref("itemID", itemID);
-  }
-  ztoolkit.log(`found backup itemid: ${getPref("itemID")}`);
+  const oldItemID = await findBackupItem();
+  if (oldItemID && Zotero.Items.get(oldItemID as number))
+    await Zotero.Items.erase(oldItemID as number);
+  const item = new Zotero.Item("document");
+  item.setField("title", "Tara_Backup");
+  const groupID = getPref("groupID");
+  item.libraryID = Zotero.Groups.getLibraryIDFromGroupID(groupID);
+  await item.saveTx();
 }
 
 export function getPrefsPath(): string {
@@ -187,7 +183,6 @@ export async function createBackupFile(isExport = false) {
   await createBackupItem();
   const outDir = PathUtils.join(tmpDir, "Backup");
   await IOUtils.makeDirectory(outDir);
-  const profileDir: string = Zotero.Profile.dir;
   const dataDir: string = Zotero.Prefs.get("dataDir") as string;
   let backupInfos;
   let s: string, t: string;
@@ -226,7 +221,8 @@ export async function createBackupFile(isExport = false) {
         }
         case "importAttachment": {
           const zipfile = PathUtils.join(saveDir, zipFilename);
-          const item = Zotero.Items.get(getPref("itemID") as number);
+          const itemID = await findBackupItem() as number;
+          const item = Zotero.Items.get(itemID);
           const timeString = new Date().toLocaleString();
           const importOptions = {
             file: zipfile,

@@ -79,7 +79,7 @@ export function zipDirectory(
       if (entry.path == zipPath) {
         ztoolkit.log(
           "skipping entry - will not add this entry to the zip file - as this is the zip itself: " +
-            zipPath,
+          zipPath,
         );
         continue;
       }
@@ -189,18 +189,16 @@ export async function unzipToTemporaryDir(filename: string, tmpDir: string) {
 
 // Find Tara backup item in library.
 export async function findBackupItem(): Promise<number | false> {
-  const itemID = getPref("itemID") as number | undefined;
-  if (itemID) {
-    return itemID;
+  const groupID = getPref("groupID");
+  if (!groupID) return false;
+  const libraryID = Zotero.Groups.getLibraryIDFromGroupID(groupID);
+  const s = new Zotero.Search();
+  s.addCondition("title", "is", "Tara_Backup");
+  s.addCondition("libraryID", "is", libraryID);
+  const itemIDs = await s.search();
+  if (itemIDs.length > 0) {
+    return itemIDs[0];
   } else {
-    const s = new Zotero.Search();
-    s.addCondition("title", "is", "Tara_Backup");
-    const itemIDs = await s.search();
-    if (itemIDs.length > 0) {
-      setPref("itemID", itemIDs[0]); // Update default itemID value.
-      return itemIDs[0];
-    } else {
-      return false;
-    }
+    return false;
   }
 }

@@ -27,18 +27,18 @@ export class UI {
             createBackupAsAttachment();
           },
         },
-        {
-          tag: "menuitem",
-          label: getString("toolbar-export"),
-          icon: `${iconbase}/export_icon.png`,
-          commandListener: () => exportBackup(),
-        },
-        {
-          tag: "menuitem",
-          label: getString("toolbar-import"),
-          icon: `${iconbase}/import_icon.png`,
-          commandListener: () => importFromBackup(),
-        },
+        // {
+        //   tag: "menuitem",
+        //   label: getString("toolbar-export"),
+        //   icon: `${iconbase}/export_icon.png`,
+        //   commandListener: () => exportBackup(),
+        // },
+        // {
+        //   tag: "menuitem",
+        //   label: getString("toolbar-import"),
+        //   icon: `${iconbase}/import_icon.png`,
+        //   commandListener: () => importFromBackup(),
+        // },
         {
           tag: "menuitem",
           label: getString("toolbar-restore"),
