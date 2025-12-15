@@ -1,33 +1,48 @@
-[
-  {
-    "branch": "extensions.zotero",
-    "keysMode": "black",
-    "keys": [
-      "dataDir",
-      "firstRun.skipFirefoxProfileAccessCheck",
-      "firstRun2",
-      "lastWebDAVOrphanPurge",
-      "prefVersion",
-      "scaffold.translatorsDir",
-      "sync.reminder.setUp.enabled",
-      "sync.reminder.setUp.lastDisplayed",
-      "sync.storage.verified",
-      "recentSaveTargets",
-      "lastViewedFolder",
-      "scaffold.translatorsDir",
-      "scaffold.eslint.enabled",
-      "tara.itemID",
-      "tara.exportDir",
-      "thirdPartyCache",
-      "zotero.asyncTemp"
+{
+  "preferences": {
+    "branchesMode": "white",
+    "branches": [
+      {
+        "branch": "extensions.zotero.actionsTags.actions",
+        "keysMode": "white",
+        "keys": [
+          "reviewCollectionKey",
+          "shareCollectionKey"
+        ]
+      },
+      {
+        "branch": "extensions.actionsTags",
+        "keysMode": "black",
+        "keys": [
+          "ruleWarningDisabled",
+          "rulesInit"
+        ]
+      },
+      {
+        "branch": "extensions.actionsTags.rules",
+        "keysMode": "white",
+        "keys": [
+          "updateActions"
+        ]
+      }
     ]
   },
-  {
-    "branch": "extensions.zoteroWinWordIntegration",
+  "addons": {
     "keysMode": "black",
     "keys": [
-      "installed",
-      "version"
+      "tara@linxzh.com"
+    ]
+  },
+  "styles": {
+    "keysMode": "white",
+    "keys": [
+      "http://www.zotero.org/styles/vancouver"
+    ]
+  },
+  "translators": {
+    "keysMode": "white",
+    "keys": [
+      "92d45016-5f7b-4bcf-bb63-193033f02f2b"
     ]
   }
-]
+}

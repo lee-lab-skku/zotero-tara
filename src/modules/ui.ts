@@ -177,13 +177,4 @@ export default class Progress {
       listbox.parentNode!.insertBefore(p, listbox.nextSibling);
     }
   }
-
-  async openSelectWindow(io: any) {
-    ztoolkit.log("** Tara open select window ");
-    this.selectionWindow = await this.openWindow(
-      "chrome://tara/content/select.html",
-      "chrome,close=yes,resizable=yes,dependent,dialog,centerscreen,height=300,width=410",
-      io,
-    );
-  }
 }
