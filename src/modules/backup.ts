@@ -32,16 +32,6 @@ export async function createBackupItem(): Promise<void | boolean> {
   await item.saveTx();
 }
 
-export function getPrefsPath(): string {
-  const profileDir = Zotero.Profile.dir;
-  return PathUtils.join(profileDir, "prefs.js");
-}
-
-export async function readPrefsFromFile() {
-  const prefsFile: string = getPrefsPath();
-  return await Zotero.Profile.readPrefsFromFile(prefsFile);
-}
-
 function isValidPref(this: any, pref: string): boolean {
   ztoolkit.log(`checking pref ${pref}`);
   const matchingPolicies = this.filter((policy: any) =>
@@ -113,15 +103,11 @@ export async function getTranslatorInfos() {
   });
 }
 
-export async function createBackupFile(isExport = false) {
-  // Create a temporary folder. Data in backup folder
+export async function createBackupAsAttachment() {
   const cacheTmp = Zotero.getTempDirectory();
   const tmpDir = cacheTmp.path;
-  const zipFilename = `${new Date().toLocaleString()}_backup.zip`.replace(
-    /[\s/:]/g,
-    "_",
-  );
-  const saveDir = (isExport ? getPref("exportDir") : tmpDir) as string;
+  const zipFilename = "backup.zip";
+  const saveDir = (tmpDir) as string;
   // Remove existing backup data.
   cacheTmp.append("Backup");
   if (cacheTmp.exists()) {
@@ -141,7 +127,7 @@ export async function createBackupFile(isExport = false) {
   let s: string, t: string;
   let success = true;
   await addon.data.progress.openProgressWindow({
-    header: isExport ? getString("export-header") : getString("backup-header"),
+    header: getString("backup-header"),
   });
   try {
     backupInfos.preferences = getPrefInfos();
@@ -162,10 +148,9 @@ export async function createBackupFile(isExport = false) {
     const zipfile = PathUtils.join(saveDir, zipFilename);
     const itemID = await findBackupItem() as number;
     const item = Zotero.Items.get(itemID);
-    const timeString = new Date().toLocaleString();
     const importOptions = {
       file: zipfile,
-      title: timeString + "_backup.zip",
+      title: "backup.zip",
       parentItemID: item.id,
     };
     await Zotero.Attachments.importFromFile(importOptions);
@@ -175,13 +160,7 @@ export async function createBackupFile(isExport = false) {
   }
 
   let msg: string;
-  if (isExport && success) {
-    msg = getString("export-success-msg", {
-      args: { folder: getPref("exportDir"), zipfile: zipFilename },
-    });
-  } else if (isExport && !success) {
-    msg = getString("export-fail-msg");
-  } else if (!isExport && !success) {
+  if (!success) {
     msg = getString("export-item-fail-msg");
   } else {
     msg = getString("export-item-success-msg");
@@ -195,78 +174,11 @@ export async function createBackupFile(isExport = false) {
   ztoolkit.log("Create backup zip complete");
 }
 
-export async function createBackupAsAttachment() {
-  ztoolkit.log("**create Backup As Attachment");
-  addon.data.progress.totalTasks = addon.data.progress.queue.length;
-  await createBackupFile();
-  ztoolkit.log("Creating Backup as Attachment finished");
-}
-
-// export async function exportBackup() {
-//   ztoolkit.log("** Tara start export backup");
-//   addon.data.progress.queue = getQueue().concat(["createZIP"]);
-//   addon.data.progress.totalTasks = addon.data.progress.queue.length;
-//   await createBackupFile(true);
-//   ztoolkit.log("** Tara finish export backup");
-// }
-
-// export async function importFromBackup() {
-//   // Import from an export backup zip
-//   const filename = await new FilePickerHelper(
-//     getString("select-backup-file"),
-//     "open",
-//     [[`${getString("zip-file")}(*.zip)"`, "*.zip"]],
-//   ).open();
-
-//   if (!filename) return;
-
-//   await restoreFromFile(filename);
-// }
-
 export async function restoreFromBackup() {
   const backupItemID = await findBackupItem();
-  const io: any = {
-    title: getString("select-title"),
-    deferred: Zotero.Promise.defer(),
-  };
-  let attachment: any;
-  if (
-    backupItemID &&
-    Zotero.Items.get(backupItemID) &&
-    Zotero.Items.get(backupItemID).getAttachments()
-  ) {
-    const backupItem = Zotero.Items.get(backupItemID);
-    const attachmentIDs = backupItem.getAttachments();
-    const files: any = {};
-    attachmentIDs.reduce((p: any, r) => {
-      p[Zotero.Items.get(r).getField("title") as string] = r;
-      return p;
-    }, files);
-    io["items"] = Object.keys(files);
-    io["items"].sort().reverse();
-    ztoolkit.log(io["items"]);
-    addon.data.progress.openSelectWindow(io);
-    await io.deferred.promise;
-    ztoolkit.log("** Tara select promise");
-    ztoolkit.log(io["attachment"]);
-    // No item selected in selection window
-    if (!io["attachment"]) return;
-    attachment = Zotero.Items.get(files[io["attachment"]] as number);
-    await restoreFromFile(attachment!.getFilePath() as string);
-  } else {
-    await addon.data.progress.openProgressWindow({
-      header: getString("restore-header"),
-    });
-    await addon.data.progress.completeProgressWindow(
-      false,
-      getString("missing-backup-item-header"),
-      "",
-      getString("missing-backup-item-body"),
-    );
-  }
-}
-
-export async function restoreFromFile(filename: string) {
+  const attachmentID = Zotero.Items.get(backupItemID as number).getAttachments()[0];
+  const attachment = Zotero.Items.get(attachmentID as number);
+  const filename = attachment.getFilePath() as string;
   const cacheTmp = Zotero.getTempDirectory();
   cacheTmp.append("Backup");
   if (cacheTmp.exists()) {

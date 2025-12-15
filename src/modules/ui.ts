@@ -2,8 +2,6 @@ import { config } from "../../package.json";
 import { getString } from "../utils/locale";
 import {
   createBackupAsAttachment,
-  // exportBackup,
-  // importFromBackup,
   restoreFromBackup,
 } from "./backup";
 
@@ -27,18 +25,6 @@ export class UI {
             createBackupAsAttachment();
           },
         },
-        // {
-        //   tag: "menuitem",
-        //   label: getString("toolbar-export"),
-        //   icon: `${iconbase}/export_icon.png`,
-        //   commandListener: () => exportBackup(),
-        // },
-        // {
-        //   tag: "menuitem",
-        //   label: getString("toolbar-import"),
-        //   icon: `${iconbase}/import_icon.png`,
-        //   commandListener: () => importFromBackup(),
-        // },
         {
           tag: "menuitem",
           label: getString("toolbar-restore"),
@@ -73,26 +59,6 @@ export class UI {
             style:
               "list-style-image: url('chrome://tara/content/icons/create_icon.png');",
             oncommand: "alert('create');",
-          },
-        },
-        {
-          tag: "menuitem",
-          attributes: {
-            id: "zotero-tb-tara-export-backup",
-            label: getString("toolbar-export"),
-            class: "menuitem-iconic",
-            style:
-              "list-style-image: url('chrome://tara/content/icons/export_icon.png');",
-          },
-        },
-        {
-          tag: "menuitem",
-          attributes: {
-            id: "zotero-tb-tara-import-backup",
-            label: getString("toolbar-import"),
-            class: "menuitem-iconic",
-            style:
-              "list-style-image: url('chrome://tara/content/icons/import_icon.png');",
           },
         },
         {
