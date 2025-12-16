@@ -4,6 +4,7 @@ import { config } from "../package.json";
 import { initLocale } from "./utils/locale";
 import { registerPrefsScripts, initPrefs } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
+import { restoreFromBackup } from "./modules/backup";
 
 async function onStartup() {
   await Promise.all([
@@ -14,7 +15,7 @@ async function onStartup() {
   initLocale();
   initPrefs();
 
-  BasicExampleFactory.registerPrefs();
+  // BasicExampleFactory.registerPrefs();
 
   await onMainWindowLoad(window);
 }
@@ -26,9 +27,10 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   await Zotero.Promise.delay(1000);
 
   //UI.registerToolbarMenu();
-  UI.registerToolsMenu();
+  // UI.registerToolsMenu();
 
   await Zotero.Promise.delay(1000);
+  await restoreFromBackup();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
