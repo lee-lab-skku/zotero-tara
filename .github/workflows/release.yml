@@ -14,7 +14,7 @@ jobs:
   release-it:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.GitHub_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,11 +36,3 @@ jobs:
         run: |
           pnpm release
           sleep 1s
-
-      - name: Notify release
-        uses: apexskier/github-release-commenter@v1
-        continue-on-error: true
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          comment-template: |
-            :rocket: _This ticket has been resolved in {release_tag}. See {release_link} for release notes._
