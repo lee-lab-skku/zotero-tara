@@ -37,7 +37,7 @@ export default defineConfig({
         {
           version: "2.0.0-9",
           update_link:
-            "https://github.com/lee-lab-skku/tara/releases/download/2.0.0-9/tara.xpi",
+            "https://github.com/lee-lab-skku/zotero-tara/releases/download/2.0.0-9/tara.xpi",
           applications: {
             zotero: {
               strict_min_version: "6.999",

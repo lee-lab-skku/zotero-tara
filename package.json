@@ -20,11 +20,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lee-lab-skku/tara.git"
+    "url": "git+https://github.com/lee-lab-skku/zotero-tara.git"
   },
   "author": "lee-lab-skku",
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://github.com/lee-lab-skku/tara#readme",
+  "homepage": "https://github.com/lee-lab-skku/zotero-tara#readme",
   "dependencies": {
     "zotero-plugin-toolkit": "^4.1.2"
   },
