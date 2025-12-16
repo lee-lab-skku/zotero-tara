@@ -30,9 +30,7 @@ jobs:
           node-version: 20
 
       - name: Install deps
-        run: |
-          echo "public-hoist-pattern[]=@types*" >> .npmrc
-          pnpm install
+        run: pnpm install
 
       - name: Release to GitHub
         run: |
