@@ -1,12 +1,7 @@
-import { FilePickerHelper } from "zotero-plugin-toolkit";
-import { getString } from "../utils/locale";
 import { getPref, setPref } from "../utils/prefs";
 import {
-  copyDirectory,
   findBackupItem,
   removeDirectory,
-  unzipToTemporaryDir,
-  zipDirectory,
 } from "../utils/tools";
 
 // @ts-ignore
@@ -16,6 +11,7 @@ const { AddonManager } = ChromeUtils.import(
 
 interface AddonInfo {
   id: string;
+  version: string;
   spec: string;
 }
 
@@ -82,6 +78,7 @@ async function getAddons(policies: any, outDir: string) {
     const update = await fetch(addon.updateURL).then((res) => res.json());
     addoninfos.push({
       id: id,
+      version: addon.version,
       // @ts-ignore
       spec: update.addons[id].updates[0].update_link,
     });
@@ -186,7 +183,11 @@ export async function restoreFromBackup() {
       }
     } else if (basename === "addons.json") {
       const addonsData = await IOUtils.readJSON(filename);
+      const existingAddons = await AddonManager.getAllAddons();
+      const existingAddonIDs = existingAddons.map((addon: any) => addon.id);
       for (const addon of addonsData) {
+        if (existingAddonIDs.includes(addon.id) && existingAddons.find((a: any) => a.id === addon.id).version === addon.version) continue;
+        ztoolkit.log(`Installing addon ${addon.id} from ${addon.spec}`);
         const install = await AddonManager.getInstallForURL(addon.spec);
         await install.install();
       }
