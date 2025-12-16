@@ -7,9 +7,8 @@ export default defineConfig({
   name: pkg.config.addonName,
   id: pkg.config.addonID,
   namespace: pkg.config.addonRef,
-  updateURL: `https://github.com/{{owner}}/{{repo}}/releases/download/release/${
-    pkg.version.includes("-") ? "update-beta.json" : "update.json"
-  }`,
+  updateURL: `https://github.com/{{owner}}/{{repo}}/releases/download/release/${pkg.version.includes("-") ? "update-beta.json" : "update.json"
+    }`,
   xpiDownloadLink:
     "https://github.com/{{owner}}/{{repo}}/releases/download/v{{version}}/{{xpiName}}.xpi",
 
@@ -36,9 +35,9 @@ export default defineConfig({
     makeUpdateJson: {
       updates: [
         {
-          version: "1.0.0-9",
+          version: "2.0.0-9",
           update_link:
-            "https://github.com/l0o0/tara/releases/download/1.0.0-9/tara.xpi",
+            "https://github.com/lee-lab-skku/tara/releases/download/2.0.0-9/tara.xpi",
           applications: {
             zotero: {
               strict_min_version: "6.999",
