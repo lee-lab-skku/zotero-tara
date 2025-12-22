@@ -32,20 +32,6 @@ export default defineConfig({
         outfile: `build/addon/chrome/content/scripts/${pkg.config.addonRef}.js`,
       },
     ],
-    makeUpdateJson: {
-      updates: [
-        {
-          version: "2.0.0-9",
-          update_link:
-            "https://github.com/lee-lab-skku/zotero-tara/releases/download/2.0.0-9/tara.xpi",
-          applications: {
-            zotero: {
-              strict_min_version: "6.999",
-            },
-          },
-        },
-      ],
-    },
   },
 
   // If you need to see a more detailed log, uncomment the following line:
