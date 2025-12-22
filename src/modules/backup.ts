@@ -16,8 +16,6 @@ interface AddonInfo {
 }
 
 export async function createBackupItem(): Promise<number | boolean> {
-  if (Zotero.Users.getCurrentUserID() !== getPref("adminID"))
-    return false;
   const oldItemID = await findBackupItem();
   if (oldItemID && Zotero.Items.get(oldItemID as number))
     await Zotero.Items.erase(oldItemID as number);

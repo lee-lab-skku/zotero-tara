@@ -1,10 +1,10 @@
-import { BasicExampleFactory } from "./modules/examples";
 import { UI } from "./modules/ui";
 import { config } from "../package.json";
 import { initLocale } from "./utils/locale";
 import { registerPrefsScripts, initPrefs } from "./modules/preferenceScript";
 import { createZToolkit } from "./utils/ztoolkit";
 import { restoreFromBackup } from "./modules/backup";
+import { getPref } from "./utils/prefs";
 
 async function onStartup() {
   await Promise.all([
@@ -14,9 +14,6 @@ async function onStartup() {
   ]);
   initLocale();
   initPrefs();
-
-  // BasicExampleFactory.registerPrefs();
-
   await onMainWindowLoad(window);
 }
 
@@ -27,10 +24,10 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   await Zotero.Promise.delay(1000);
 
   //UI.registerToolbarMenu();
-  UI.registerToolsMenu();
-
-  await Zotero.Promise.delay(1000);
-  await restoreFromBackup();
+  if (Zotero.Users.getCurrentUserID() === getPref("adminID"))
+    UI.registerToolsMenu();
+  else
+    await restoreFromBackup();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
