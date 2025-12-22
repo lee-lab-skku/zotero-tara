@@ -27,7 +27,7 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   await Zotero.Promise.delay(1000);
 
   //UI.registerToolbarMenu();
-  // UI.registerToolsMenu();
+  UI.registerToolsMenu();
 
   await Zotero.Promise.delay(1000);
   await restoreFromBackup();

@@ -25,12 +25,12 @@ export class UI {
             createBackupAsAttachment();
           },
         },
-        {
-          tag: "menuitem",
-          label: getString("toolbar-restore"),
-          icon: `${iconbase}/restore_icon.png`,
-          commandListener: () => restoreFromBackup(),
-        },
+        // {
+        //   tag: "menuitem",
+        //   label: getString("toolbar-restore"),
+        //   icon: `${iconbase}/restore_icon.png`,
+        //   commandListener: () => restoreFromBackup(),
+        // },
       ],
     });
   }

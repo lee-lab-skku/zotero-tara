@@ -189,8 +189,19 @@ export async function unzipToTemporaryDir(filename: string, tmpDir: string) {
 
 // Find Tara backup item in library.
 export async function findBackupItem(): Promise<number | false> {
-  const groupID = getPref("groupID");
-  if (!groupID) return false;
+  let groupID = getPref("groupID");
+  if (!groupID) {
+    groupID = Zotero.Prefs.get("extensions.zotero.actionsTags.actions.groupID", true);
+    if (!groupID) {
+      const selected = new Object();
+      const groups = Zotero.Groups.getAll();
+      // @ts-ignore
+      await Services.prompt.select(null, 'Organization', 'Which group is your organization?', groups.map((g: any) => g.name), selected);
+      // @ts-ignore
+      groupID = groups[selected.value].id;
+      setPref("groupID", groupID as number);
+    }
+  }
   const libraryID = Zotero.Groups.getLibraryIDFromGroupID(groupID);
   const s = new Zotero.Search();
   s.addCondition("title", "is", "Tara_Backup");

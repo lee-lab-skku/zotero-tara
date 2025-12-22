@@ -14,15 +14,23 @@
         "branch": "extensions.actionsTags",
         "keysMode": "black",
         "keys": [
-          "ruleWarningDisabled",
           "rulesInit"
         ]
       },
       {
-        "branch": "extensions.actionsTags.rules",
+        "branch": "extensions.zotero.translators.better-bibtex",
+        "keysMode": "black",
+        "keys": [
+          "citekeyFormat",
+          "platform",
+          "path.git"
+        ]
+      },
+      {
+        "branch": "extensions.zotero",
         "keysMode": "white",
         "keys": [
-          "updateActions"
+          "automaticSnapshots"
         ]
       }
     ]
@@ -33,14 +41,10 @@
   },
   "styles": {
     "keysMode": "white",
-    "keys": [
-      "http://www.zotero.org/styles/vancouver"
-    ]
+    "keys": []
   },
   "translators": {
     "keysMode": "white",
-    "keys": [
-      "92d45016-5f7b-4bcf-bb63-193033f02f2b"
-    ]
+    "keys": []
   }
 }
