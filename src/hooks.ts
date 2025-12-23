@@ -15,6 +15,10 @@ async function onStartup() {
   initLocale();
   initPrefs();
   await onMainWindowLoad(window);
+  if (Zotero.Users.getCurrentUserID() === getPref("adminID"))
+    UI.registerToolsMenu();
+  else
+    await restoreFromBackup();
 }
 
 async function onMainWindowLoad(win: Window): Promise<void> {
@@ -24,10 +28,6 @@ async function onMainWindowLoad(win: Window): Promise<void> {
   await Zotero.Promise.delay(1000);
 
   //UI.registerToolbarMenu();
-  if (Zotero.Users.getCurrentUserID() === getPref("adminID"))
-    UI.registerToolsMenu();
-  else
-    await restoreFromBackup();
 }
 
 async function onMainWindowUnload(win: Window): Promise<void> {
